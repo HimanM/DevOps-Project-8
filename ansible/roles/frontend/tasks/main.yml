@@ -16,6 +16,14 @@
     name: ghcr.io/himanm/devops-project-8/frontend:{{ image_tag | default('latest') }}
     source: pull
 
+- name: Create runtime config (env.js)
+  copy:
+    dest: /tmp/env.js
+    content: |
+      window.env = {
+        BACKEND_API_URL: "http://{{ backend_ip }}:3001"
+      };
+
 - name: Run Frontend Container
   community.docker.docker_container:
     name: frontend
@@ -24,8 +32,8 @@
     restart_policy: always
     ports:
       - "3000:3000"
-    env:
-      BACKEND_API_URL: "http://{{ backend_ip }}:3001"
+    volumes:
+      - /tmp/env.js:/app/public/env.js
 
 - name: Run Node Exporter
   community.docker.docker_container:

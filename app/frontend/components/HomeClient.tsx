@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { SiAmazon, SiTerraform, SiAnsible, SiGithubactions, SiDocker, SiNextdotjs, SiPrometheus, SiGrafana } from "react-icons/si";
-import { FiServer, FiActivity, FiDatabase, FiShield, FiGithub } from "react-icons/fi";
+import { SiAmazon, SiTerraform, SiAnsible, SiGithubactions, SiDocker, SiNextdotjs, SiNodedotjs, SiPrometheus, SiGrafana, SiGnubash } from "react-icons/si";
+import { FiServer, FiActivity, FiDatabase, FiShield, FiGithub, FiExternalLink } from "react-icons/fi";
 import ZoomableImage from "@/components/ZoomableImage";
 import CodeBlock from "@/components/CodeBlock";
 
@@ -62,13 +62,25 @@ interface HomeClientProps {
     initialApiUrl: string;
 }
 
+interface Window {
+    env?: {
+        BACKEND_API_URL: string;
+    };
+}
+
 export default function HomeClient({ initialApiUrl }: HomeClientProps) {
     const [backendData, setBackendData] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const [finalApiUrl, setFinalApiUrl] = useState<string>('');
 
     useEffect(() => {
-        // Use the passed prop which comes from server-side runtime env (Docker), or fallback
-        const apiUrl = initialApiUrl || 'http://localhost:3001';
+        // Piority: 1. Runtime config (window.env via env.js) 2. Server Prop (Docker Env) 3. Default
+        // Note: window.env is populated by env.js script injection
+        const runtimeUrl = (window as unknown as Window).env?.BACKEND_API_URL;
+        const apiUrl = runtimeUrl || initialApiUrl || 'http://localhost:3001';
+        setFinalApiUrl(apiUrl);
+
+        console.log("Connecting to backend at:", apiUrl);
 
         fetch(`${apiUrl}/api/hello`)
             .then((res) => res.json())
@@ -77,12 +89,7 @@ export default function HomeClient({ initialApiUrl }: HomeClientProps) {
                 setLoading(false);
             })
             .catch((err) => {
-                // Check if we are on GitHub Pages (static export)
-                // We can check this via the prop too, or just inspect the window location if we really wanted,
-                // but checking the env var is fine if it was baked in during build, 
-                // OR we can infer it if initialApiUrl is empty/default.
-                // However, for GitHub Pages we expect the build-time env var `NEXT_PUBLIC_DEPLOY_SOURCE` to strict equal 'github-pages'.
-                // Since that is a build-time var, it is still accessible here.
+                // Check if we are on GitHub Pages via the legacy environment variable or inferred context
                 if (process.env.NEXT_PUBLIC_DEPLOY_SOURCE === 'github-pages') {
                     setBackendData("Clone this repo and follow the instruction to deploy with Terraform and Ansible");
                 } else {
@@ -138,7 +145,7 @@ export default function HomeClient({ initialApiUrl }: HomeClientProps) {
                             </span>
                         </div>
                         <div className="text-xs text-gray-600 font-mono mt-2 absolute -bottom-8">
-                            Target: {initialApiUrl}
+                            Target: {finalApiUrl}
                         </div>
                     </div>
                 </motion.div>
