@@ -1,0 +1,18 @@
+---
+- name: Deploy Backend
+  hosts: backend
+  become: yes
+  roles:
+    - backend
+
+- name: Deploy Frontend
+  hosts: frontend
+  become: yes
+  roles:
+    - frontend
+
+- name: Deploy Monitoring
+  hosts: monitoring
+  become: yes
+  roles:
+    - monitoring

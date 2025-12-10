@@ -1,0 +1,53 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["Build and Push"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Get Terraform Outputs
+        id: tf_outputs
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cd terraform
+          terraform init
+          echo "BACKEND_IP=$(terraform output -raw backend_ec2_ip)" >> $GITHUB_ENV
+          echo "FRONTEND_IP=$(terraform output -raw frontend_ec2_ip)" >> $GITHUB_ENV
+          echo "MONITORING_IP=$(terraform output -raw monitoring_ec2_ip)" >> $GITHUB_ENV
+
+      - name: Create SSH Key File
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > ansible/ssh_key
+          chmod 600 ansible/ssh_key
+
+      - name: Run Ansible Playbook
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: main.yml
+          directory: ./ansible
+          # key: ${{ secrets.EC2_SSH_KEY }} # Using manual key file instead
+          inventory: |
+            [backend]
+            ${{ env.BACKEND_IP }} ansible_user=ubuntu ansible_ssh_private_key_file=ssh_key
+
+            [frontend]
+            ${{ env.FRONTEND_IP }} ansible_user=ubuntu ansible_ssh_private_key_file=ssh_key
+
+            [monitoring]
+            ${{ env.MONITORING_IP }} ansible_user=ubuntu ansible_ssh_private_key_file=ssh_key
+          options: |
+            --extra-vars "backend_ip=${{ env.BACKEND_IP }}"
