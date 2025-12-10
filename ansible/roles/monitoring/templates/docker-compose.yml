@@ -16,6 +16,7 @@ services:
       - ./dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml
       - ./dashboard_node_exporter.json:/etc/grafana/provisioning/dashboards/dashboard_node_exporter.json
       - ./dashboard_loki.json:/etc/grafana/provisioning/dashboards/dashboard_loki.json
+      - ./dashboard_docker.json:/etc/grafana/provisioning/dashboards/dashboard_docker.json
   loki:
     image: grafana/loki
     ports:

@@ -83,6 +83,7 @@
   loop:
     - dashboard_node_exporter.json
     - dashboard_loki.json
+    - dashboard_docker.json
 
 - name: Run Docker Compose
   community.docker.docker_compose_v2:
