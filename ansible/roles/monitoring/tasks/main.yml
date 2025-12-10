@@ -67,12 +67,7 @@
     dest: /opt/monitoring/datasources.yaml
   register: grafana_ds
 
-- name: Restart Grafana
-  community.docker.docker_container:
-    name: grafana
-    state: started
-    restart: yes
-  when: grafana_ds.changed
+
 
 - name: Copy Grafana Dashboards Config
   template:
@@ -97,3 +92,8 @@
   community.docker.docker_compose_v2:
     project_src: /opt/monitoring
     state: present
+
+- name: Restart Grafana
+  shell: docker restart grafana
+  when: grafana_ds.changed
+  ignore_errors: yes
