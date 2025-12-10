@@ -9,7 +9,7 @@
 <!-- DYNAMIC_LINKS_START -->
 
 > [!NOTE]
-> **Deployment Status**: Active 🟢
+> **Deployment Status**: Inctive 🔴
 
 ### 🚀 Live Access Points (No Longer Works - Infra Destroyed via Terraform Destroy)
 
