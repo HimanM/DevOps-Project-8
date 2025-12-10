@@ -40,6 +40,12 @@
       - docker-compose-plugin
     state: present
 
+- name: Start Docker
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
 - name: Create monitoring directory
   file:
     path: /opt/monitoring

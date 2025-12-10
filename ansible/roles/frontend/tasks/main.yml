@@ -25,7 +25,7 @@
     ports:
       - "3000:3000"
     env:
-      NEXT_PUBLIC_API_URL: "{{ backend_ip | default('http://localhost:3001') }}"
+      NEXT_PUBLIC_API_URL: "http://{{ backend_ip }}:3001"
 
 - name: Run Node Exporter
   community.docker.docker_container:
