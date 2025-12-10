@@ -1,6 +1,33 @@
-# DevOps Full-Stack Deployment Project
+# Enterprise DevOps Infrastructure Automation
+
+[![Terraform](https://github.com/HimanM/DevOps-Project-8/actions/workflows/terraform.yaml/badge.svg)](https://github.com/HimanM/DevOps-Project-8/actions/workflows/terraform.yaml)
+[![Build and Push](https://github.com/HimanM/DevOps-Project-8/actions/workflows/build-and-push.yaml/badge.svg)](https://github.com/HimanM/DevOps-Project-8/actions/workflows/build-and-push.yaml)
+[![Deploy](https://github.com/HimanM/DevOps-Project-8/actions/workflows/deploy.yaml/badge.svg)](https://github.com/HimanM/DevOps-Project-8/actions/workflows/deploy.yaml)
+[![Update Documentation](https://github.com/HimanM/DevOps-Project-8/actions/workflows/update-docs.yaml/badge.svg)](https://github.com/HimanM/DevOps-Project-8/actions/workflows/update-docs.yaml)
+
+#### Deployment Status: Active
+<!-- DYNAMIC_LINKS_START -->
+| Service | URL | Description |
+| :--- | :--- | :--- |
+| **Frontend** | [http://35.164.246.177:3000](http://35.164.246.177:3000) | Next.js User Interface |
+| **Backend API** | [http://35.167.63.85:3001/api/hello](http://35.167.63.85:3001/api/hello) | Node.js API Root |
+| **Grafana** | [http://35.88.107.146:3000](http://35.88.107.146:3000) | Dashboards (admin/admin) |
+| **Prometheus** | [http://35.88.107.146:9090](http://35.88.107.146:9090) | Metrics Browser |
+| **Loki** | [http://35.88.107.146:3100/ready](http://35.88.107.146:3100/ready) | Log Aggregator Status |
+<!-- DYNAMIC_LINKS_END -->
+
+## Project Overview
+
+This project is an advanced demonstration of **Infrastructure as Code (IaC)** and **Configuration Management** principles, designed to simulate a real-world enterprise deployment.
+
+The core objective of this project is to go beyond basic provisioning and implement robust, team-ready infrastructure workflows. It focuses heavily on:
+1.  **Terraform State Management**: Implementing a robust **Remote State** architecture using AWS S3 for storage and **DynamoDB for state locking**, ensuring safe collaboration and preventing state corruption in concurrent environments.
+2.  **Automated Infrastructure Pipelines**: Integrating Terraform directly into **GitHub Actions CI/CD**, automating the `plan` and `apply` stages to treat infrastructure changes with the same rigor as application code.
+3.  **Ansible Configuration Management**: Using Ansible roles to dynamically configure servers, demonstrating how to decouple server provisioning (Terraform) from software configuration (Ansible).
 
 ## Architecture
+
+The infrastructure resides in a custom AWS VPC, provisioned entirely via Terraform.
 
 ```ascii
        +------------------+
@@ -25,18 +52,49 @@
   | EC2 (3000)| | EC2 (3001)| |(3000/9090)|
   +----------+ +---------+ +-----------+
 ```
+![EC2 Instances](docs/ec2_instances.png)
 
-## Setup
+## Key Learning Outcomes
 
-### Prerequisites
-1.  **AWS Account**: You need an active AWS account.
-2.  **GitHub Repository**: Fork or duplicate this repository.
-3.  **Terraform**: Installed locally (optional, for manual testing).
-4.  **Ansible**: Installed locally (optional, for manual testing).
+### 1. Terraform Remote State & Locking
+A critical feature of this project is the implementation of a **Remote Backend**. Instead of a local state file, Terraform uses:
+*   **S3 Bucket**: Stores the `terraform.tfstate` file, ensuring a single source of truth for the infrastructure.
+    ![S3 Bucket State](docs/tfstate_s3_bucket.png)
+*   **DynamoDB Table**: Provides **State Locking**. This prevents simultaneous `terraform apply` executions (e.g., from two different developers or CI pipeline runs) from corrupting the infrastructure state.
+    ![DynamoDB Lock Table](docs/tf_lock_table_dynamodb.png)
 
-### 1. AWS Configuration (One-time)
-#### Create Key Pair
-Run this in your terminal to create the key pair in the correct region and save the private key:
+### 2. Infrastructure in CI/CD
+This project demonstrates "GitOps" for infrastructure. Terraform is not run manually on a developer's machine but executed via **GitHub Actions**:
+*   **Terraform Validate/Plan**: Runs on Pull Requests to preview infrastructure changes.
+*   **Terraform Apply**: Runs on merge to `main`, automatically provisioning or updating AWS resources.
+    ![Terraform Workflow Success](docs/github_workflow_terraform_infra_success.png)
+
+### 3. Ansible for Configuration
+While Terraform handles *creating* the EC2 instances, Ansible handles *configuring* them. This separation of concerns allows for:
+*   **Idempotency**: Ansible playbooks can run multiple times without breaking the configuration.
+*   **Dynamic Inventory**: Ansible automatically discovers the IPs of the servers created by Terraform, ensuring accurate targeting.
+    ![Ansible Deploy Success](docs/github_workflow_deploy_images_via_ansible_and_configure_services_and_monitoring_success.png)
+
+## Setup Instructions
+
+Follow these steps to replicate this deployment in your own AWS environment.
+
+### 1. Repository Setup
+
+Clone the repository to your local machine:
+
+```bash
+git clone https://github.com/HimanM/DevOps-Project-8.git
+cd DevOps-Project-8
+```
+
+### 2. Infrastructure Prerequisites
+
+#### IAM User
+Ensure you have an AWS IAM user with `AdministratorAccess` (or sufficient permissions for EC2, VPC, S3, DynamoDB, and IAM role creation).
+
+#### Create SSH Key Pair
+Generate a key pair for EC2 instance access. Run the following command in your terminal:
 
 ```bash
 aws ec2 create-key-pair \
@@ -45,52 +103,38 @@ aws ec2 create-key-pair \
   --query 'KeyMaterial' \
   --output text > devops-project-8-keypair.pem
 ```
+![Key Pair](docs/aws_onetime_keypair.png)
 
-**Important**:
-1.  This creates `devops-project-8-keypair.pem` in your current folder.
-2.  Copy the content of this file.
-3.  Add it to GitHub Secrets as `EC2_SSH_KEY`.
+*   **Action**: Save the content of `devops-project-8-keypair.pem` securely. You will need it for GitHub Secrets.
 
-### 2. Manual Infrastructure Setup (S3 + DynamoDB)
-Terraform needs a remote backend to store its state. You can copy-paste these commands to your terminal (Git Bash or WSL) to set it up:
+#### Configure Terraform Backend (S3 + DynamoDB)
+Terraform uses a remote backend to store state files securely. Execute the following commands to provision the necessary S3 bucket and DynamoDB table.
 
-#### 1. Configure Variables
+**1. Define Variables**
 ```bash
-# Choose unique names
 BUCKET_NAME="my-terraform-state-himan-001"
 DYNAMO_TABLE="terraform-lock-table"
 AWS_REGION="us-west-2"
 ```
 
-#### 2. Create S3 Bucket
+**2. Create S3 Bucket**
 ```bash
 aws s3api create-bucket \
   --bucket $BUCKET_NAME \
   --region $AWS_REGION \
   --create-bucket-configuration LocationConstraint=$AWS_REGION
 ```
+![Create S3](docs/create_s3_bucket_for_tfstate.png)
 
-#### 3. Enable Versioning (Recommended)
+**3. Enable Versioning**
 ```bash
 aws s3api put-bucket-versioning \
   --bucket $BUCKET_NAME \
   --versioning-configuration Status=Enabled
 ```
 
-#### 4. Enable Encryption (Recommended)
-```bash
-aws s3api put-bucket-encryption \
-  --bucket $BUCKET_NAME \
-  --server-side-encryption-configuration '{
-      "Rules": [{
-          "ApplyServerSideEncryptionByDefault": {
-              "SSEAlgorithm": "AES256"
-          }
-      }]
-  }'
-```
-
-#### 5. Create DynamoDB Lock Table
+**4. Create DynamoDB Lock Table**
+(Crucial for State Locking)
 ```bash
 aws dynamodb create-table \
   --table-name $DYNAMO_TABLE \
@@ -99,99 +143,87 @@ aws dynamodb create-table \
   --billing-mode PAY_PER_REQUEST \
   --region $AWS_REGION
 ```
-
-#### 6. Verify Creation
-```bash
-# Check Table
-aws dynamodb describe-table --table-name $DYNAMO_TABLE
-
-# Check Bucket
-aws s3 ls s3://$BUCKET_NAME
-```
+![Create DynamoDB](docs/dynamodb_locking_table.png)
 
 ### 3. GitHub Secrets Configuration
-Go to your **GitHub Repository > Settings > Secrets and variables > Actions** and add the following:
+
+Navigate to your GitHub repository settings: **Settings > Secrets and variables > Actions**. Add the following repository secrets:
 
 | Secret Name | Description | Example Value |
 | :--- | :--- | :--- |
-| `AWS_ACCESS_KEY_ID` | AWS IAM Access Key | `AKIAIOSFODNN7EXAMPLE` |
-| `AWS_SECRET_ACCESS_KEY` | AWS IAM Secret Key | `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY` |
-| `EC2_SSH_KEY` | Content of `devops-project-8-keypair.pem` | `-----BEGIN RSA PRIVATE KEY----- ...` |
+| `AWS_ACCESS_KEY_ID` | AWS IAM Access Key | `AKIA...` |
+| `AWS_SECRET_ACCESS_KEY` | AWS IAM Secret Key | `wJal...` |
+| `EC2_SSH_KEY` | Content of your .pem private key | `-----BEGIN RSA PRIVATE KEY-----...` |
 
-> **Note**: `GITHUB_TOKEN` is used automatically for authentication with GHCR, so you typically do not need to add a PAT unless you have specific permission issues.
+### 4. Deployment Execution
 
-### 4. Deployment Workflow
-1.  **Commit & Push**: Pushing to the `main` branch triggers the pipeline.
-    -   **Terraform**: Provisions EC2, VPC, etc.
-    -   **Build & Push**: Builds Docker images (Frontend/Backend) and pushes to GHCR.
-    -   **Deploy**: Connects to EC2 instances and runs Ansible to deploy containers.
+The CI/CD pipeline is fully automated using GitHub Actions. To trigger a deployment:
 
-2.  **Access the Application**:
-<!-- DYNAMIC_LINKS_START -->
+1.  Make a change to the codebase.
+2.  Commit and push to the `main` branch.
 
-> [!NOTE]
-> **Deployment Status**: Active 🟢
+**Pipeline Stages:**
+1.  **Terraform**: Validates and provisions the AWS infrastructure.
+2.  **Build & Push**: Builds Docker images for the frontend and backend, then pushes them to the GitHub Container Registry (GHCR).
+    ![Build and Push Success](docs/github_workflow_build_and_push_images_success.png)
+3.  **Deploy**: Connects to the provisioned EC2 instances via SSH and executes Ansible playbooks to pull images and start containers.
+4.  **Update Documentation**: Automatically updates this README with the live public IPs of the deployed services.
 
-### 🚀 Live Access Points
+## Application Verification
 
-| Service | URL | Description |
-| :--- | :--- | :--- |
-| **Frontend** | [http://35.164.246.177:3000](http://35.164.246.177:3000) | Next.js User Interface |
-| **Backend API** | [http://35.167.63.85:3001/api/hello](http://35.167.63.85:3001/api/hello) | Node.js API Root |
-| **Grafana** | [http://35.88.107.146:3000](http://35.88.107.146:3000) | Dashboards (admin/admin) |
-| **Prometheus** | [http://35.88.107.146:9090](http://35.88.107.146:9090) | Metrics Browser |
-| **Loki** | [http://35.88.107.146:3100/ready](http://35.88.107.146:3100/ready) | Log Aggregator Status |
+### Frontend
+The Next.js Application is accessible via the public IP of the Frontend instance.
+![Frontend App](docs/frontend.png)
 
-<!-- DYNAMIC_LINKS_END -->
+### Backend API
+The Express.js API serves data endpoints.
+*   **Hello Endpoint**:
+    ![API Hello](docs/backend_api_response_hello_endpoint.png)
+*   **Data Endpoint**:
+    ![API Data](docs/backend_api_response_data_endpoint.png)
 
+## Observability Stack
 
+The project includes a full monitoring stack running on the Monitoring Server.
 
-## Terraform
+### Prometheus & Grafana
+**System Metrics (node_exporter)**: Monitors CPU, Memory, and Disk/Network usage.
+![Node Exporter Dashboard](docs/grafana_node_exporter_dashboard.png)
 
-We use Terraform for Infrastructure as Code.
--   **State**: Stored in S3 with DynamoDB locking.
--   **Commands**:
-    -   `terraform init`: Initialize remote backend.
-    -   `terraform plan`: Preview changes.
-    -   `terraform apply`: Create resources.
+**Docker Container Stats (cAdvisor)**: Monitors resource usage per container.
+![Docker Dashboard](docs/grafana_docker_containers_dashboard.png)
 
-The workflow `.github/workflows/terraform.yaml` automates this on Push/PR.
+### Loki Logs
+**Centralized Logging**: Aggregates logs from Frontend and Backend services.
+![Loki Logs Dashboard](docs/grafana_loki_logs_dashboard.png)
 
-## GitHub Actions
+## Technology Stack
 
--   **Terraform Workflow**: Validates and Applies infrastructure changes.
--   **Build & Push**: Builds Docker images for Frontend and Backend and pushes to GitHub Container Registry (GHCR).
--   **Deploy**: Triggered after successful build. Connects to EC2 instances using SSH and runs Ansible playbooks.
+### Infrastructure as Code (Terraform)
+*   **State Management**: Remote S3 backend with DynamoDB locking.
+*   **Resources**: VPC, Public Subnets, Security Groups, Internet Gateway, Route Tables, EC2 Instances.
+*   **Automation**: Terraform is run automatically in the CI pipeline to ensure infrastructure consistency.
 
-## Ansible
+### Configuration Management (Ansible)
+*   **Role-Based Architecture**:
+    *   `backend`: Provisions Node.js API container, Node Exporter, Promtail.
+    *   `frontend`: Provisions Next.js container, Node Exporter, Promtail.
+    *   `monitoring`: Provisions the observability stack (Prometheus, Grafana, Loki).
+*   **Dynamic Inventory**: IPs are dynamically passed from Terraform outputs to Ansible variables during deployment.
 
-Configuration Management is handled by Ansible.
--   **Roles**:
-    -   `backend`: Deploys Node.js container.
-    -   `frontend`: Deploys Next.js container linked to backend.
-    -   `monitoring`: Deploys Prometheus, Grafana, Loki stack using Docker Compose.
--   **Inventory**: Managed dynamically or via `inventory.ini`. CI/CD populates IPs.
+### Observability
+*   **Prometheus**: Scrapes metrics from Node Exporters (system metrics) and cAdvisor (container metrics).
+*   **Grafana**: Visualizes metrics and logs. Pre-configured with automatic datasource provisioning.
+*   **Loki**: Centralized aggregation of logs from all services via Promtail.
+*   **Dashboards**:
+    *   System Metrics (Check CPU/Memory/Disk)
+    *   Docker Container Stats (Check Network/CPU per container)
+    *   Loki Logs (Centralized log view)
 
-## Observability
+## Future Enhancements
+*   Implementation of HTTPS via Let's Encrypt and Nginx.
+*   Auto-scaling groups for high availability.
+*   Refactoring module structure for Terraform reusability.
 
--   **Prometheus**: Metrics collection (Port 9090).
--   **Grafana**: Visualization (Port 3000).
--   **Loki**: Log aggregation (Port 3100).
-
-Access Grafana at `http://<Monitoring-EC2-IP>:3000`. Default creds: `admin/admin`.
-
-### 📊 Recommended Dashboards
-To visualize your data, import these dashboards (ID):
-
-1.  **System Metrics (Node Exporter)**: `1860`
-    *   *Shows CPU, Ram, Disk usage for all your servers.*
-2.  **Docker Containers**: `19382` or `179`
-    *   *Monitor your Docker containers.*
-3.  **Loki Logs**: `13639`
-    *   *View and search logs from all services.*
-
-**How to Import:**
-1.  Go to Grafana > **Dashboards** > **New** > **Import**.
-2.  Type the ID (e.g., `1860`) and click **Load**.
-3.  Select your **Prometheus** or **Loki** data source.
-4.  Click **Import**.
+---
+*Project maintained by HimanM*
