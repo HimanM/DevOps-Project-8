@@ -50,4 +50,4 @@ jobs:
             [monitoring]
             ${{ env.MONITORING_IP }} ansible_user=ubuntu ansible_ssh_private_key_file=ssh_key
           options: |
-            --extra-vars "backend_ip=${{ env.BACKEND_IP }}"
+            --extra-vars "backend_ip=${{ env.BACKEND_IP }} monitoring_ip=${{ env.MONITORING_IP }}"

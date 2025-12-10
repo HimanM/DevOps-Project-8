@@ -26,3 +26,27 @@
       - "3000:3000"
     env:
       NEXT_PUBLIC_API_URL: "{{ backend_ip | default('http://localhost:3001') }}"
+
+- name: Run Node Exporter
+  community.docker.docker_container:
+    name: node-exporter
+    image: prom/node-exporter:latest
+    state: started
+    restart_policy: always
+    ports:
+      - "9100:9100"
+
+- name: Copy Promtail Config
+  template:
+    src: promtail-config.yml
+    dest: /tmp/promtail-config.yml
+
+- name: Run Promtail
+  community.docker.docker_container:
+    name: promtail
+    image: grafana/promtail:latest
+    state: started
+    restart_policy: always
+    volumes:
+      - /var/log:/var/log
+      - /tmp/promtail-config.yml:/etc/promtail/config.yml
