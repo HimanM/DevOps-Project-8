@@ -1,14 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_PROMETHEUS",
-      "label": "Prometheus",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "prometheus",
-      "pluginName": "Prometheus"
-    }
-  ],
   "__requires": [
     {
       "type": "panel",
@@ -54,7 +44,7 @@
             "SENT": "#BF1B00"
           },
           "bars": false,
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "error": false,
           "fill": 5,
@@ -143,7 +133,7 @@
             "{}": "#DEDAF7"
           },
           "bars": true,
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "decimals": 0,
           "editable": true,
           "error": false,
@@ -249,7 +239,7 @@
             "{id=\"/\",instance=\"cadvisor:8080\",job=\"prometheus\"}": "#BA43A9"
           },
           "bars": false,
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "error": false,
           "fill": 3,
@@ -369,7 +359,7 @@
             "{}": "#BF1B00"
           },
           "bars": false,
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "error": false,
           "fill": 4,
@@ -458,7 +448,7 @@
             "Unavailable Memory": "#BF1B00"
           },
           "bars": false,
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "error": false,
           "fill": 4,
@@ -656,7 +646,7 @@
         {
           "aliasColors": {},
           "bars": false,
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "error": false,
           "fill": 1,
@@ -755,7 +745,7 @@
         {
           "aliasColors": {},
           "bars": false,
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "error": false,
           "fill": 5,
@@ -836,7 +826,7 @@
             "node_load15": "#CCA300"
           },
           "bars": false,
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "error": false,
           "fill": 0,
@@ -922,7 +912,7 @@
         {
           "aliasColors": {},
           "bars": false,
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "error": false,
           "fill": 1,
@@ -1011,7 +1001,7 @@
         {
           "aliasColors": {},
           "bars": false,
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "error": false,
           "fill": 3,
@@ -1105,7 +1095,7 @@
         {
           "aliasColors": {},
           "bars": false,
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "error": false,
           "fill": 1,
@@ -1191,7 +1181,7 @@
         {
           "aliasColors": {},
           "bars": false,
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "error": false,
           "fill": 3,
@@ -1297,7 +1287,7 @@
               "value": "avg"
             }
           ],
-          "datasource": "${DS_PROMETHEUS}",
+          "datasource": "prometheus",
           "editable": true,
           "error": false,
           "fontSize": "100%",
@@ -1436,7 +1426,7 @@
       {
         "allValue": ".+",
         "current": {},
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "prometheus",
         "hide": 0,
         "includeAll": true,
         "label": "Container Group",
