@@ -128,9 +128,20 @@ Go to your **GitHub Repository > Settings > Secrets and variables > Actions** an
 
 2.  **Access the Application**:
 <!-- DYNAMIC_LINKS_START -->
-    -   Frontend: `http://<Frontend-EC2-IP>:3000`
-    -   Backend: `http://<Backend-EC2-IP>:3001`
-    -   Grafana: `http://<Monitoring-EC2-IP>:3000`
+
+> [!NOTE]
+> **Deployment Status**: Active 🟢
+
+### 🚀 Live Access Points
+
+| Service | URL | Description |
+| :--- | :--- | :--- |
+| **Frontend** | [http://35.164.246.177:3000](http://35.164.246.177:3000) | Next.js User Interface |
+| **Backend API** | [http://35.167.63.85:3001/api/hello](http://35.167.63.85:3001/api/hello) | Node.js API Root |
+| **Grafana** | [http://35.88.107.146:3000](http://35.88.107.146:3000) | Dashboards (admin/admin) |
+| **Prometheus** | [http://35.88.107.146:9090](http://35.88.107.146:9090) | Metrics Browser |
+| **Loki** | [http://35.88.107.146:3100/ready](http://35.88.107.146:3100/ready) | Log Aggregator Status |
+
 <!-- DYNAMIC_LINKS_END -->
 
 
