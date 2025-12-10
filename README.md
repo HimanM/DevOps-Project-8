@@ -11,7 +11,7 @@
 > [!NOTE]
 > **Deployment Status**: Active 🟢
 
-### 🚀 Live Access Points
+### 🚀 Live Access Points (No Longer Works - Infra Destroyed via Terraform Destroy)
 
 | Service | URL | Description |
 | :--- | :--- | :--- |
