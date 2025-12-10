@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - 'app/**'
+      - "app/**"
 
 permissions:
   packages: write
@@ -31,11 +31,15 @@ jobs:
         with:
           context: ./app/backend
           push: true
-          tags: ghcr.io/himanm/devops-project-8/backend:latest # Replace USERNAME with your GitHub username
+          tags: |
+            ghcr.io/himanm/devops-project-8/backend:latest
+            ghcr.io/himanm/devops-project-8/backend:${{ github.sha }}
 
       - name: Build and push Frontend
         uses: docker/build-push-action@v4
         with:
           context: ./app/frontend
           push: true
-          tags: ghcr.io/himanm/devops-project-8/frontend:latest # Replace USERNAME with your GitHub username
+          tags: |
+            ghcr.io/himanm/devops-project-8/frontend:latest
+            ghcr.io/himanm/devops-project-8/frontend:${{ github.sha }}

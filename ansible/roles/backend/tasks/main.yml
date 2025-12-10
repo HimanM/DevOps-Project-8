@@ -13,13 +13,13 @@
 
 - name: Pull Backend Image
   community.docker.docker_image:
-    name: ghcr.io/himanm/devops-project-8/backend:latest
+    name: ghcr.io/himanm/devops-project-8/backend:{{ image_tag | default('latest') }}
     source: pull
 
 - name: Run Backend Container
   community.docker.docker_container:
     name: backend
-    image: ghcr.io/himanm/devops-project-8/backend:latest
+    image: ghcr.io/himanm/devops-project-8/backend:{{ image_tag | default('latest') }}
     state: started
     restart_policy: always
     ports:
