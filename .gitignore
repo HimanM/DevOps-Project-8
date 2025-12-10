@@ -1,2 +1,5 @@
 node_modules
 .next
+.terraform
+devops-project-8-keypair.pem
+.terraform.lock.hcl

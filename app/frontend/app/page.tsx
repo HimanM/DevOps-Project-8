@@ -22,7 +22,7 @@ export default async function Home() {
 
     return (
         <main style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-            <h1>DevOps Project Frontend</h1>
+            <h1>DevOps Project 8 Frontend</h1>
             <div style={{ padding: '1rem', border: '1px solid #ccc', borderRadius: '8px', maxWidth: '600px' }}>
                 <h2>Backend Response:</h2>
                 <p><strong>Message:</strong> {data.data}</p>

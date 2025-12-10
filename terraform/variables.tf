@@ -37,10 +37,10 @@ variable "instance_type" {
 
 variable "key_name" {
   description = "SSH Key Pair name"
-  default     = "my-key-pair"
+  default     = "devops-project-8-keypair"
 }
 
 variable "project_name" {
   description = "Project Name Tag"
-  default     = "DevOps-Project"
+  default     = "DevOps-Project-8"
 }

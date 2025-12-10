@@ -35,14 +35,21 @@
 4.  **Ansible**: Installed locally (optional, for manual testing).
 
 ### 1. AWS Configuration (One-time)
-1.  **Create Key Pair**:
-    -   Go to **AWS Console > EC2 > Key Pairs**.
-    -   Create a new key pair named `my-key-pair`.
-    -   Format: `.pem`.
-    -   **Download the file** (e.g., `my-key-pair.pem`). You will need the content of this file for GitHub Secrets.
-2.  **Create IAM User (Optional but Recommended)**:
-    -   Create a user with `AdministratorAccess` (or restricted Terraform permissions).
-    -   Generate **Access Key** and **Secret Key**.
+#### Create Key Pair
+Run this in your terminal to create the key pair in the correct region and save the private key:
+
+```bash
+aws ec2 create-key-pair \
+  --key-name devops-project-8-keypair \
+  --region us-west-2 \
+  --query 'KeyMaterial' \
+  --output text > devops-project-8-keypair.pem
+```
+
+**Important**:
+1.  This creates `devops-project-8-keypair.pem` in your current folder.
+2.  Copy the content of this file.
+3.  Add it to GitHub Secrets as `EC2_SSH_KEY`.
 
 ### 2. Manual Infrastructure Setup (S3 + DynamoDB)
 Terraform needs a remote backend to store its state. You can copy-paste these commands to your terminal (Git Bash or WSL) to set it up:
@@ -109,7 +116,7 @@ Go to your **GitHub Repository > Settings > Secrets and variables > Actions** an
 | :--- | :--- | :--- |
 | `AWS_ACCESS_KEY_ID` | AWS IAM Access Key | `AKIAIOSFODNN7EXAMPLE` |
 | `AWS_SECRET_ACCESS_KEY` | AWS IAM Secret Key | `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY` |
-| `EC2_SSH_KEY` | Content of `my-key-pair.pem` | `-----BEGIN RSA PRIVATE KEY----- ...` |
+| `EC2_SSH_KEY` | Content of `devops-project-8-keypair.pem` | `-----BEGIN RSA PRIVATE KEY----- ...` |
 
 > **Note**: `GITHUB_TOKEN` is used automatically for authentication with GHCR, so you typically do not need to add a PAT unless you have specific permission issues.
 
