@@ -137,6 +137,9 @@ export default function HomeClient({ initialApiUrl }: HomeClientProps) {
                                 {loading ? "Connecting..." : backendData || "Backend Offline"}
                             </span>
                         </div>
+                        <div className="text-xs text-gray-600 font-mono mt-2 absolute -bottom-8">
+                            Target: {initialApiUrl}
+                        </div>
                     </div>
                 </motion.div>
             </section>
