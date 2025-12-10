@@ -127,9 +127,11 @@ Go to your **GitHub Repository > Settings > Secrets and variables > Actions** an
     -   **Deploy**: Connects to EC2 instances and runs Ansible to deploy containers.
 
 2.  **Access the Application**:
+<!-- DYNAMIC_LINKS_START -->
     -   Frontend: `http://<Frontend-EC2-IP>:3000`
     -   Backend: `http://<Backend-EC2-IP>:3001`
     -   Grafana: `http://<Monitoring-EC2-IP>:3000`
+<!-- DYNAMIC_LINKS_END -->
 
 
 

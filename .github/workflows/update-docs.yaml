@@ -1,0 +1,80 @@
+name: Update Documentation
+
+on:
+  workflow_run:
+    workflows: ["Deploy"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  update-readme:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Get Terraform Outputs
+        id: tf
+        run: |
+          cd terraform
+          terraform init
+          echo "BACKEND_IP=$(terraform output -raw backend_ec2_ip)" >> $GITHUB_ENV
+          echo "FRONTEND_IP=$(terraform output -raw frontend_ec2_ip)" >> $GITHUB_ENV
+          echo "MONITORING_IP=$(terraform output -raw monitoring_ec2_ip)" >> $GITHUB_ENV
+
+      - name: Update README
+        run: |
+          # Define the marker strings
+          START_MARKER="<!-- DYNAMIC_LINKS_START -->"
+          END_MARKER="<!-- DYNAMIC_LINKS_END -->"
+
+          # Content to inject
+          NEW_CONTENT="
+          > [!NOTE]
+          > **Deployment Status**: Active 🟢
+
+          ### 🚀 Live Access Points
+
+          | Service | URL | Description |
+          | :--- | :--- | :--- |
+          | **Frontend** | [http://${FRONTEND_IP}:3000](http://${FRONTEND_IP}:3000) | Next.js User Interface |
+          | **Backend API** | [http://${BACKEND_IP}:3001/api/hello](http://${BACKEND_IP}:3001/api/hello) | Node.js API Root |
+          | **Grafana** | [http://${MONITORING_IP}:3000](http://${MONITORING_IP}:3000) | Dashboards (admin/admin) |
+          | **Prometheus** | [http://${MONITORING_IP}:9090](http://${MONITORING_IP}:9090) | Metrics Browser |
+          | **Loki** | [http://${MONITORING_IP}:3100/ready](http://${MONITORING_IP}:3100/ready) | Log Aggregator Status |
+          "
+
+          # Update README.md using awk to replace content between markers
+          awk -v start="$START_MARKER" -v end="$END_MARKER" -v content="$NEW_CONTENT" '
+            $0 ~ start {print; print content; found=1; next}
+            $0 ~ end {found=0}
+            !found {print}
+          ' README.md > README.md.tmp && mv README.md.tmp README.md
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          if [[ -n $(git status -s) ]]; then
+            git add README.md
+            git commit -m "docs: update deployment links in README [skip ci]"
+            git push
+          else
+            echo "No changes to commit"
+          fi
