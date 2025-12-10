@@ -65,6 +65,14 @@
   template:
     src: datasources.yaml
     dest: /opt/monitoring/datasources.yaml
+  register: grafana_ds
+
+- name: Restart Grafana
+  community.docker.docker_container:
+    name: grafana
+    state: started
+    restart: yes
+  when: grafana_ds.changed
 
 - name: Copy Grafana Dashboards Config
   template:
