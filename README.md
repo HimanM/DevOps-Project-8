@@ -7,6 +7,12 @@
 
 #### Deployment Status: Active
 <!-- DYNAMIC_LINKS_START -->
+
+> [!NOTE]
+> **Deployment Status**: Active 🟢
+
+### 🚀 Live Access Points
+
 | Service | URL | Description |
 | :--- | :--- | :--- |
 | **Frontend** | [http://35.164.246.177:3000](http://35.164.246.177:3000) | Next.js User Interface |
@@ -14,6 +20,7 @@
 | **Grafana** | [http://35.88.107.146:3000](http://35.88.107.146:3000) | Dashboards (admin/admin) |
 | **Prometheus** | [http://35.88.107.146:9090](http://35.88.107.146:9090) | Metrics Browser |
 | **Loki** | [http://35.88.107.146:3100/ready](http://35.88.107.146:3100/ready) | Log Aggregator Status |
+
 <!-- DYNAMIC_LINKS_END -->
 
 ## Project Overview
