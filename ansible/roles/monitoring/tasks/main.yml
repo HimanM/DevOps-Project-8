@@ -5,9 +5,9 @@
     state: present
     update_cache: yes
 
-- name: Install Docker Compose
+- name: Install Docker Compose Plugin
   apt:
-    name: docker-compose
+    name: docker-compose-plugin
     state: present
 
 - name: Create monitoring directory
@@ -26,6 +26,6 @@
     dest: /opt/monitoring/promtail-config.yml
 
 - name: Run Docker Compose
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: /opt/monitoring
     state: present
