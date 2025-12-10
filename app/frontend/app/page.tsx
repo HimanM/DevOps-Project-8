@@ -71,7 +71,11 @@ export default function Home() {
                 setLoading(false);
             })
             .catch((err) => {
-                setBackendData("Error connecting to backend");
+                if (process.env.NEXT_PUBLIC_DEPLOY_SOURCE === 'github-pages') {
+                    setBackendData("Clone this repo and follow the instruction to deploy with Terraform and Ansible");
+                } else {
+                    setBackendData("Error connecting to backend");
+                }
                 setLoading(false);
             });
     }, []);

@@ -4,3 +4,4 @@ node_modules
 devops-project-8-keypair.pem
 .terraform.lock.hcl
 .vscode
+out
