@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { X, ZoomIn, ZoomOut } from "@/components/Icons";
+import { FiX, FiZoomIn, FiZoomOut } from "react-icons/fi";
 
 interface ZoomableImageProps {
     src: string;
@@ -61,13 +61,13 @@ export default function ZoomableImage({ src, alt, className }: ZoomableImageProp
                                     onClick={handleZoom}
                                     className="rounded-full bg-black/50 p-2 text-white/80 transition-colors hover:bg-white/20 hover:text-white"
                                 >
-                                    {scale === 1 ? <ZoomIn size={20} /> : <ZoomOut size={20} />}
+                                    {scale === 1 ? <FiZoomIn size={20} /> : <FiZoomOut size={20} />}
                                 </button>
                                 <button
                                     onClick={toggleOpen}
                                     className="rounded-full bg-black/50 p-2 text-white/80 transition-colors hover:bg-white/20 hover:text-white"
                                 >
-                                    <X size={20} />
+                                    <FiX size={20} />
                                 </button>
                             </div>
 

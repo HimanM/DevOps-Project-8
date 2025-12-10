@@ -11,8 +11,8 @@ import CodeBlock from "@/components/CodeBlock";
 
 function Section({ title, id, children }: { title: string; id: string; children: React.ReactNode }) {
     return (
-        <section id={id} className="py-16 md:py-24 border-b border-white/5 last:border-0 relative">
-            <div className="container mx-auto px-4 md:px-6">
+        <section id={id} className="py-16 md:py-24 border-b border-white/5 last:border-0 relative overflow-hidden">
+            <div className="container mx-auto px-6 md:px-12">
                 <motion.h2
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
@@ -47,6 +47,17 @@ function TechCard({ icon: Icon, title, description, color }: { icon: any, title:
 
 // --- Main Page ---
 
+const TECH_STACK = [
+    { icon: SiTerraform, title: "Terraform", description: "IaC & State Management", color: "#7B42BC" },
+    { icon: SiAnsible, title: "Ansible", description: "Configuration Management", color: "#EE0000" },
+    { icon: SiGithubactions, title: "GitHub Actions", description: "CI/CD Pipelines", color: "#2088FF" },
+    { icon: SiAmazon, title: "AWS", description: "Cloud Infrastructure", color: "#FF9900" },
+    { icon: SiDocker, title: "Docker", description: "Containerization", color: "#2496ED" },
+    { icon: SiPrometheus, title: "Prometheus", description: "Metrics Collection", color: "#E6522C" },
+    { icon: SiGrafana, title: "Grafana", description: "Visualization", color: "#F46800" },
+    { icon: SiNextdotjs, title: "Next.js", description: "Frontend Framework", color: "#FFFFFF" },
+];
+
 export default function Home() {
     const [backendData, setBackendData] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -66,7 +77,7 @@ export default function Home() {
     }, []);
 
     return (
-        <main className="min-h-screen bg-background text-foreground selection:bg-accent/20">
+        <main className="min-h-screen bg-background text-foreground selection:bg-accent/20 overflow-x-hidden">
 
             {/* Hero Section */}
             <section className="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-4 overflow-hidden">
@@ -116,38 +127,51 @@ export default function Home() {
 
             {/* Tech Stack */}
             <Section title="Technology Stack" id="stack">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                    <TechCard icon={SiTerraform} title="Terraform" description="IaC & State Management" color="#7B42BC" />
-                    <TechCard icon={SiAnsible} title="Ansible" description="Configuration Management" color="#EE0000" />
-                    <TechCard icon={SiGithubactions} title="GitHub Actions" description="CI/CD Pipelines" color="#2088FF" />
-                    <TechCard icon={SiAmazon} title="AWS" description="Cloud Infrastructure" color="#FF9900" />
-                    <TechCard icon={SiDocker} title="Docker" description="Containerization" color="#2496ED" />
-                    <TechCard icon={SiPrometheus} title="Prometheus" description="Metrics Collection" color="#E6522C" />
-                    <TechCard icon={SiGrafana} title="Grafana" description="Visualization" color="#F46800" />
-                    <TechCard icon={SiNextdotjs} title="Next.js" description="Frontend Framework" color="#FFFFFF" />
+                {/* Mobile Marquee */}
+                <div className="md:hidden overflow-hidden -mx-6">
+                    <motion.div
+                        className="flex gap-8 w-max px-6"
+                        animate={{ x: "-50%" }}
+                        transition={{ duration: 30, ease: "linear", repeat: Infinity }}
+                    >
+                        {[...TECH_STACK, ...TECH_STACK].map((tech, i) => (
+                            <div key={i} className="flex flex-col items-center gap-2">
+                                <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-sm">
+                                    <tech.icon size={28} style={{ color: tech.color }} />
+                                </div>
+                            </div>
+                        ))}
+                    </motion.div>
+                </div>
+
+                {/* Desktop Grid */}
+                <div className="hidden md:grid md:grid-cols-4 gap-4">
+                    {TECH_STACK.map((tech) => (
+                        <TechCard key={tech.title} {...tech} />
+                    ))}
                 </div>
             </Section>
 
             {/* Architecture */}
             <Section title="Infrastructure" id="architecture">
                 <div className="grid lg:grid-cols-2 gap-12 items-start">
-                    <div className="space-y-8">
+                    <div className="space-y-8 flex flex-col items-center lg:items-start text-center lg:text-left">
                         <h3 className="text-2xl font-semibold flex items-center gap-2">
                             <FiShield className="text-accent" /> Secure VPC Architecture
                         </h3>
                         <p className="text-gray-400 leading-relaxed">
                             We create a custom Virtual Private Cloud (VPC) from scratch. This ensures total isolation and control over the network environment.
                         </p>
-                        <ul className="space-y-4">
-                            <li className="flex items-start gap-3 text-gray-300">
-                                <FiServer className="mt-1 text-green-500" />
+                        <ul className="space-y-4 w-full">
+                            <li className="flex flex-col lg:flex-row items-center lg:items-start gap-3 text-gray-300">
+                                <FiServer className="mt-1 text-green-500 shrink-0" />
                                 <div>
                                     <strong className="block text-white">Three Dedicated EC2 Instances</strong>
                                     <span className="text-sm text-gray-400">Frontend, Backend, and Monitoring servers are isolated.</span>
                                 </div>
                             </li>
-                            <li className="flex items-start gap-3 text-gray-300">
-                                <FiDatabase className="mt-1 text-blue-500" />
+                            <li className="flex flex-col lg:flex-row items-center lg:items-start gap-3 text-gray-300">
+                                <FiDatabase className="mt-1 text-blue-500 shrink-0" />
                                 <div>
                                     <strong className="block text-white">Remote State Locking</strong>
                                     <span className="text-sm text-gray-400">S3 + DynamoDB prevents race conditions during deployment.</span>
@@ -165,55 +189,61 @@ export default function Home() {
 
             {/* Detailed Setup Instructions */}
             <Section title="Deployment Process" id="setup">
-                <div className="space-y-16">
+                <div className="space-y-24">
 
                     {/* Step 1 */}
-                    <div className="grid lg:grid-cols-2 gap-12">
-                        <div>
+                    <div className="grid lg:grid-cols-2 gap-12 items-center">
+                        <div className="flex flex-col items-center lg:items-start text-center lg:text-left min-w-0">
                             <div className="flex items-center gap-4 mb-6">
-                                <div className="w-10 h-10 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold text-xl">1</div>
+                                <div className="w-10 h-10 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold text-xl shrink-0">1</div>
                                 <h3 className="text-2xl font-bold">Key Pair Generation</h3>
                             </div>
-                            <p className="text-gray-400 mb-4">First, we generate a secure SSH key pair to access our EC2 instances.</p>
-                            <CodeBlock code={`aws ec2 create-key-pair \\
+                            <p className="text-gray-400 mb-6">First, we generate a secure SSH key pair to access our EC2 instances.</p>
+                            <div className="w-full text-left min-w-0 max-w-full">
+                                <CodeBlock code={`aws ec2 create-key-pair \\
   --key-name devops-project-8-keypair \\
   --region us-west-2 \\
   --query 'KeyMaterial' \\
   --output text > devops-project-8-keypair.pem`} />
+                            </div>
                         </div>
                         <ZoomableImage src="/docs/aws_onetime_keypair.png" alt="Key Pair" />
                     </div>
 
                     {/* Step 2 */}
-                    <div className="grid lg:grid-cols-2 gap-12">
+                    <div className="grid lg:grid-cols-2 gap-12 items-center">
                         <ZoomableImage src="/docs/create_s3_bucket_for_tfstate.png" alt="S3 Bucket" className="order-2 lg:order-1" />
-                        <div className="order-1 lg:order-2">
+                        <div className="order-1 lg:order-2 flex flex-col items-center lg:items-start text-center lg:text-left min-w-0">
                             <div className="flex items-center gap-4 mb-6">
-                                <div className="w-10 h-10 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center font-bold text-xl">2</div>
+                                <div className="w-10 h-10 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center font-bold text-xl shrink-0">2</div>
                                 <h3 className="text-2xl font-bold">Remote Backend Storage</h3>
                             </div>
-                            <p className="text-gray-400 mb-4">We create an AWS S3 bucket to store the sensitive <code>terraform.tfstate</code> file remotely.</p>
-                            <CodeBlock code={`aws s3api create-bucket \\
+                            <p className="text-gray-400 mb-6">We create an AWS S3 bucket to store the sensitive <code>terraform.tfstate</code> file remotely.</p>
+                            <div className="w-full text-left min-w-0 max-w-full">
+                                <CodeBlock code={`aws s3api create-bucket \\
   --bucket my-terraform-state-himan-001 \\
   --region us-west-2 \\
   --create-bucket-configuration LocationConstraint=us-west-2`} />
+                            </div>
                         </div>
                     </div>
 
                     {/* Step 3 */}
-                    <div className="grid lg:grid-cols-2 gap-12">
-                        <div>
+                    <div className="grid lg:grid-cols-2 gap-12 items-center">
+                        <div className="flex flex-col items-center lg:items-start text-center lg:text-left min-w-0">
                             <div className="flex items-center gap-4 mb-6">
-                                <div className="w-10 h-10 rounded-full bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold text-xl">3</div>
+                                <div className="w-10 h-10 rounded-full bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold text-xl shrink-0">3</div>
                                 <h3 className="text-2xl font-bold">State Locking</h3>
                             </div>
-                            <p className="text-gray-400 mb-4">DynamoDB is used to lock the state file, preventing multiple pipelines from modifying infrastructure simultaneously.</p>
-                            <CodeBlock code={`aws dynamodb create-table \\
+                            <p className="text-gray-400 mb-6">DynamoDB is used to lock the state file, preventing multiple pipelines from modifying infrastructure simultaneously.</p>
+                            <div className="w-full text-left min-w-0 max-w-full">
+                                <CodeBlock code={`aws dynamodb create-table \\
   --table-name terraform-lock-table \\
   --attribute-definitions AttributeName=LockID,AttributeType=S \\
   --key-schema AttributeName=LockID,KeyType=HASH \\
   --billing-mode PAY_PER_REQUEST \\
   --region us-west-2`} />
+                            </div>
                         </div>
                         <ZoomableImage src="/docs/dynamodb_locking_table.png" alt="DynamoDB" />
                     </div>
@@ -224,19 +254,19 @@ export default function Home() {
             {/* Automated Pipelines */}
             <Section title="CI/CD Pipelines" id="cicd">
                 <div className="grid md:grid-cols-2 gap-8 mb-12">
-                    <div className="bg-white/5 p-6 rounded-xl border border-white/10">
-                        <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><SiGnubash /> Terraform Workflow</h3>
+                    <div className="bg-white/5 p-6 rounded-xl border border-white/10 min-w-0">
+                        <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><SiTerraform /> Terraform Workflow</h3>
                         <p className="text-sm text-gray-400 mb-4">Automatically provisions or updates infrastructure on every commit to `main`.</p>
                         <ZoomableImage src="/docs/github_workflow_terraform_infra_success.png" alt="Terraform Pipeline" />
                     </div>
-                    <div className="bg-white/5 p-6 rounded-xl border border-white/10">
+                    <div className="bg-white/5 p-6 rounded-xl border border-white/10 min-w-0">
                         <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><SiAnsible /> Deployment Workflow</h3>
                         <p className="text-sm text-gray-400 mb-4">Configures servers, pulls Docker images, and deploys containers using Ansatz playbook.</p>
                         <ZoomableImage src="/docs/github_workflow_deploy_images_via_ansible_and_configure_services_and_monitoring_success.png" alt="Deploy Pipeline" />
                     </div>
                 </div>
 
-                <div className="bg-[#0d0d0d] border border-white/10 rounded-lg p-6">
+                <div className="bg-[#0d0d0d] border border-white/10 rounded-lg p-6 min-w-0 max-w-full">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="font-mono text-green-400 flex items-center gap-2"><FiActivity /> Build Processor</h3>
                         <span className="text-xs text-gray-500">Github Actions Runner</span>

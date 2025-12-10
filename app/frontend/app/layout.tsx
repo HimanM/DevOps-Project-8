@@ -5,8 +5,11 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-    title: 'DevOps Project 8',
+    title: 'Enterprise Automation | HimanM',
     description: 'Enterprise DevOps Infrastructure Automation Documentation',
+    icons: {
+        icon: '/favicon.ico',
+    },
 }
 
 export default function RootLayout({
