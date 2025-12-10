@@ -61,6 +61,11 @@
     src: promtail-config.yml
     dest: /opt/monitoring/promtail-config.yml
 
+- name: Copy Grafana Datasources
+  template:
+    src: datasources.yaml
+    dest: /opt/monitoring/datasources.yaml
+
 - name: Run Docker Compose
   community.docker.docker_compose_v2:
     project_src: /opt/monitoring
