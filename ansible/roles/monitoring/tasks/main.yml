@@ -66,6 +66,24 @@
     src: datasources.yaml
     dest: /opt/monitoring/datasources.yaml
 
+- name: Copy Grafana Dashboards Config
+  template:
+    src: dashboards.yaml
+    dest: /opt/monitoring/dashboards.yaml
+
+- name: Copy Prometheus Config
+  template:
+    src: prometheus.yml
+    dest: /opt/monitoring/prometheus.yml
+
+- name: Copy Dashboard JSONs
+  copy:
+    src: "{{ item }}"
+    dest: "/opt/monitoring/{{ item }}"
+  loop:
+    - dashboard_node_exporter.json
+    - dashboard_loki.json
+
 - name: Run Docker Compose
   community.docker.docker_compose_v2:
     project_src: /opt/monitoring

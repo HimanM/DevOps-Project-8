@@ -168,3 +168,19 @@ Configuration Management is handled by Ansible.
 -   **Loki**: Log aggregation (Port 3100).
 
 Access Grafana at `http://<Monitoring-EC2-IP>:3000`. Default creds: `admin/admin`.
+
+### 📊 Recommended Dashboards
+To visualize your data, import these dashboards (ID):
+
+1.  **System Metrics (Node Exporter)**: `1860`
+    *   *Shows CPU, Ram, Disk usage for all your servers.*
+2.  **Docker Containers**: `19382` or `179`
+    *   *Monitor your Docker containers.*
+3.  **Loki Logs**: `13639`
+    *   *View and search logs from all services.*
+
+**How to Import:**
+1.  Go to Grafana > **Dashboards** > **New** > **Import**.
+2.  Type the ID (e.g., `1860`) and click **Load**.
+3.  Select your **Prometheus** or **Loki** data source.
+4.  Click **Import**.

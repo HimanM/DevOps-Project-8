@@ -3,12 +3,17 @@ services:
     image: prom/prometheus
     ports:
       - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
   grafana:
     image: grafana/grafana
     ports:
       - "3000:3000"
     volumes:
       - ./datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - ./dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml
+      - ./dashboard_node_exporter.json:/etc/grafana/provisioning/dashboards/dashboard_node_exporter.json
+      - ./dashboard_loki.json:/etc/grafana/provisioning/dashboards/dashboard_loki.json
   loki:
     image: grafana/loki
     ports:
