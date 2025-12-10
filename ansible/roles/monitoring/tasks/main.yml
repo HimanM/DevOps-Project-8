@@ -95,5 +95,4 @@
 
 - name: Restart Grafana
   shell: docker restart grafana
-  when: grafana_ds.changed
   ignore_errors: yes
