@@ -568,10 +568,8 @@ curl http://<BACKEND_IP>:3001/api/data
 **Expected response:**
 ```json
 {
-  "users": [
-    {"id": 1, "name": "John Doe"},
-    {"id": 2, "name": "Jane Smith"}
-  ]
+  "data": "Here is some data from the backend.",
+  "env_info": "Environment variables loaded"
 }
 ```
 
